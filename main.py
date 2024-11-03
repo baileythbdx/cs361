@@ -1,9 +1,55 @@
 from datetime import datetime
+import json
 
 budgets = {}
+supported_currencies = ["USD", "EUR", "AUD", "CAD"]
+currency = ""
+
+
+def save_budgets():
+    data_to_save = {"currency": currency, "budgets": budgets}
+    with open("budgets.json", "w") as file:
+        json.dump(data_to_save, file, indent=4)
+    print("Budgets saved successfully.")
+
+
+def load_budgets():
+    global budgets, currency
+    try:
+        with open("budgets.json", "r") as file:
+            data = json.load(file)
+            currency = data.get("currency", "")  # Load saved currency
+            budgets = data.get("budgets", {})    # Load saved budgets
+            print(f"Budgets loaded successfully. Current currency: {currency}")
+    except FileNotFoundError:
+        print("No saved budgets found. Starting with an empty budget.")
+    except json.JSONDecodeError:
+        print("Error decoding the saved budget file. Starting with an empty budget.")
+
+
+def select_currency():
+    global currency
+    if currency:  # If currency is already set, skip selection
+        print(f"Currency already set to {currency}")
+        return
+
+    print("\nSelect the currency for your budget (e.g., USD, EUR, AUD, CAD):")
+
+    while True:
+        currency_input = input("Enter currency: ").upper()
+        if currency_input in supported_currencies:
+            currency = currency_input
+            print(f"Currency set to {currency}")
+            break
+        else:
+            print("Unsupported currency. Please choose from: USD, EUR, AUD, CAD.")
 
 
 def main_menu():
+
+    load_budgets()
+    select_currency()
+
     while True:
         print("\nBudget Application Menu:")
         print("1. Add Actual Budget")
@@ -72,6 +118,7 @@ def add_actual_budget():
     except ValueError:
         print("Invalid input. Please enter numeric values for year, month, income, and expense amounts.")
 
+    save_budgets()
 
 def add_expected_budget():
 
@@ -117,6 +164,8 @@ def add_expected_budget():
 
     except ValueError:
         print("Invalid input. Please enter numeric values for year, month, income, and expense amounts.")
+
+    save_budgets()
 
 
 def edit_delete_budget():
@@ -252,6 +301,8 @@ def edit_delete_budget():
 
         else:
             print("Invalid choice. Please choose a valid option.")
+
+    save_budgets()
 
 
 def view_budgets_by_date_range():
