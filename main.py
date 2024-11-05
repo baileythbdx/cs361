@@ -20,7 +20,7 @@ def load_budgets():
             data = json.load(file)
             currency = data.get("currency", "")  # Load saved currency
             budgets = data.get("budgets", {})    # Load saved budgets
-            print(f"Budgets loaded successfully. Current currency: {currency}")
+            print(f"\nBudgets loaded successfully. Current currency: {currency}")
     except FileNotFoundError:
         print("No saved budgets found. Starting with an empty budget.")
     except json.JSONDecodeError:
@@ -30,7 +30,7 @@ def load_budgets():
 def select_currency():
     global currency
     if currency:  # If currency is already set, skip selection
-        print(f"Currency already set to {currency}")
+        print(f"\nCurrency already set to {currency}")
         return
 
     print("\nSelect the currency for your budget (e.g., USD, EUR, AUD, CAD):")
@@ -44,6 +44,10 @@ def select_currency():
         else:
             print("Unsupported currency. Please choose from: USD, EUR, AUD, CAD.")
 
+
+print("Hi! Welcome to the budget app. Please use the options below to add an expected budget for a specific month and year,"
+      "\nadd an actual budget for a month and year, or edit/delete any of your previously saved budgets. We hope you will"
+      "\ncome back often to update your budgets.")
 
 def main_menu():
 
@@ -80,13 +84,27 @@ def add_actual_budget():
 
     # Prompt user for year and month
     try:
-        year = int(input("\nEnter year (e.g., 2024): "))
-        month = int(input("Enter month (1-12): "))
+        # Prompt user for a valid year
+        while True:
+            try:
+                year = int(input("\nEnter the year of the budget to edit/delete (e.g., 2024): "))
+                if year < 1900 or year > 2100:
+                    print("Please enter a realistic year (e.g., between 1900 and 2100).")
+                    continue
+                break
+            except ValueError:
+                print("Invalid input. Please enter a numeric value for the year.")
 
-        # Ensure the month is valid
-        if month < 1 or month > 12:
-            print("Invalid month. Please enter a number between 1 and 12.")
-            return
+        # Prompt user for a valid month
+        while True:
+            try:
+                month = int(input("Enter the month of the budget to edit/delete (1-12): "))
+                if 1 <= month <= 12:
+                    break
+                else:
+                    print("Invalid month. Please enter a number between 1 and 12.")
+            except ValueError:
+                print("Invalid input. Please enter a numeric value for the month.")
 
         # Create a key in the format 'year-month'
         date_key = f"{year}-{month:02d}"
@@ -127,13 +145,27 @@ def add_expected_budget():
 
     # Prompt user for year and month
     try:
-        year = int(input("\nEnter year (e.g., 2024): "))
-        month = int(input("Enter month (1-12): "))
+        # Prompt user for a valid year
+        while True:
+            try:
+                year = int(input("\nEnter the year of the budget to edit/delete (e.g., 2024): "))
+                if year < 1900 or year > 2100:
+                    print("Please enter a realistic year (e.g., between 1900 and 2100).")
+                    continue
+                break
+            except ValueError:
+                print("Invalid input. Please enter a numeric value for the year.")
 
-        # Ensure the month is valid
-        if month < 1 or month > 12:
-            print("Invalid month. Please enter a number between 1 and 12.")
-            return
+        # Prompt user for a valid month
+        while True:
+            try:
+                month = int(input("Enter the month of the budget to edit/delete (1-12): "))
+                if 1 <= month <= 12:
+                    break
+                else:
+                    print("Invalid month. Please enter a number between 1 and 12.")
+            except ValueError:
+                print("Invalid input. Please enter a numeric value for the month.")
 
         # Create a key in the format 'year-month'
         date_key = f"{year}-{month:02d}"

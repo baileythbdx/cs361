@@ -75,6 +75,12 @@
                 }
             ],
             "expected_expenses": []
+        },
+        "1900-01": {
+            "actual_income": 0,
+            "expected_income": 2500.0,
+            "actual_expenses": [],
+            "expected_expenses": []
         }
     }
 }
