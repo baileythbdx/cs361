@@ -33,7 +33,8 @@ def select_currency():
         print(f"\nCurrency already set to {currency}")
         return
 
-    print("\nSelect the currency for your budget (e.g., USD, EUR, AUD, CAD):")
+    print("\nEnter the currency for your budget (USD, EUR, AUD, CAD). Please note that at this time, this selection "
+          "\ncannot be changed.")
 
     while True:
         currency_input = input("Enter currency: ").upper()
@@ -45,9 +46,10 @@ def select_currency():
             print("Unsupported currency. Please choose from: USD, EUR, AUD, CAD.")
 
 
-print("Hi! Welcome to the budget app. Please use the options below to add an expected budget for a specific month and year,"
-      "\nadd an actual budget for a month and year, or edit/delete any of your previously saved budgets. We hope you will"
-      "\ncome back often to update your budgets.")
+print("\nHi! Welcome to the budget app. Please use the options below to add an expected budget for a specific month and "
+      "\nyear, add an actual budget for a month and year, or edit/delete any of your previously saved budgets. We hope "
+      "\nyou will come back monthly (or more often!) to update your budgets to help manage your spending.")
+
 
 def main_menu():
 
