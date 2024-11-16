@@ -18,11 +18,11 @@ def load_budgets():
     try:
         with open("budgets.json", "r") as file:
             data = json.load(file)
-            currency = data.get("currency", "")  # Load saved currency
-            budgets = data.get("budgets", {})    # Load saved budgets
+            currency = data.get("currency", "")
+            budgets = data.get("budgets", {})
             print(f"\nBudgets loaded successfully. Current currency: {currency}")
     except FileNotFoundError:
-        print("No saved budgets found. Starting with an empty budget.")
+        print("\nNo saved budgets found. Starting with an empty budget.")
     except json.JSONDecodeError:
         print("Error decoding the saved budget file. Starting with an empty budget.")
 
@@ -33,8 +33,7 @@ def select_currency():
         print(f"\nCurrency already set to {currency}")
         return
 
-    print("\nEnter the currency for your budget (USD, EUR, AUD, CAD). Please note that at this time, this selection "
-          "\ncannot be changed.")
+    print("\nEnter the currency for your budget (USD, EUR, AUD, CAD).")
 
     while True:
         currency_input = input("Enter currency: ").upper()
@@ -139,6 +138,7 @@ def add_actual_budget():
         print("Invalid input. Please enter numeric values for year, month, income, and expense amounts.")
 
     save_budgets()
+
 
 def add_expected_budget():
 
@@ -273,7 +273,8 @@ def edit_delete_budget():
         print("2. Edit an expense line item")
         print("3. Delete an expense line item")
         print("4. Delete the entire budget for this month")
-        print("5. Exit to Main Menu")
+        print("5. Edit currency selection")
+        print("6. Exit to Main Menu")
 
         choice = input("Choose an option: ")
 
@@ -330,6 +331,24 @@ def edit_delete_budget():
                 print("Budget deletion canceled.")
 
         elif choice == "5":
+            global currency
+            print("\nCurrent currency:", currency)
+            print("Supported currencies:", ", ".join(supported_currencies))
+            while True:
+                new_currency = input("Enter the new currency (USD, EUR, AUD, CAD): ").upper()
+                if new_currency in supported_currencies:
+                    if new_currency == currency:
+                        print("Currency is already set to the selected value.")
+                    else:
+                        currency = new_currency
+                        save_budgets()  # Save the updated currency
+                        print(f"Currency preference has been updated to {currency}.")
+                    break
+                else:
+                    print("Unsupported currency. Please choose from the following:", ", ".join(supported_currencies))
+                    print("Try again.")
+
+        elif choice == "6":
             print("Action canceled.")
             break
 
