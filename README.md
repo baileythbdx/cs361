@@ -12,11 +12,9 @@ data = {
     ]
 }
 response = requests.post(url, json=data)
-print(response.json())
 
 
-
-B. The server responds with JSON containing the sorted categories.
+B. The server responds with JSON file containing the sorted categories.
 
 
 Example call:
@@ -34,7 +32,8 @@ C. UML Sequence Diagram
 | Main Program      |        | Microservice       |        | Server Logic      |
 +-------------------+        +--------------------+        +-------------------+
        |                           |                               |
-       | POST /sort-budget         |                               |
+       | POST request for sorted   |                               |
+       |    budget                 |                               |
        |-------------------------->|                               |
        |                           |                               |
        |                           | processRequest()              |
