@@ -286,9 +286,15 @@ def edit_delete_budget():
                 try:
                     item_index = int(input("Enter the number of the expense to edit: ")) - 1
                     if 0 <= item_index < len(budgets[date_key][f'{budget_type}_expenses']):
-                        new_name = input(f"Enter new name for {budgets[date_key][f'{budget_type}_expenses'][item_index]['name']}: ")
+                        new_name = input(
+                            f"Enter new name for "
+                            f"{budgets[date_key][f'{budget_type}_expenses'][item_index]['name']}: "
+                        )
                         new_amount = float(input(f"Enter new amount for {new_name}: "))
-                        budgets[date_key][f'{budget_type}_expenses'][item_index] = {'name': new_name, 'amount': new_amount}
+                        budgets[date_key][f'{budget_type}_expenses'][item_index] = {
+                            'name': new_name,
+                            'amount': new_amount
+                        }
                         print(f"Expense updated: {new_name} - {new_amount}")
                     else:
                         print("Invalid item number.")
@@ -312,7 +318,10 @@ def edit_delete_budget():
                 print("No expenses to delete.")
 
         elif choice == "4":
-            confirm = input(f"Are you sure you want to delete the entire {budget_type} budget for {date_key}? (yes/no): ")
+            confirm = input(
+                f"Are you sure you want to delete the entire {budget_type} "
+                f"budget for {date_key}? (yes/no): "
+            )
             if confirm.lower() == 'yes':
                 del budgets[date_key][f'{budget_type}_income']
                 del budgets[date_key][f'{budget_type}_expenses']
@@ -463,7 +472,7 @@ def view_monthly_summary():
     }
 
     try:
-        response = requests.post("http://127.0.0.1:5000/monthly_summary", json=data)
+        response = requests.post("http://127.0.0.1:5001/monthly_summary", json=data)
 
         if response.status_code == 200:
             summary = response.json()
