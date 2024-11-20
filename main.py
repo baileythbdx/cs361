@@ -9,14 +9,11 @@ currency = ""
 
 
 def save_budgets():
-    try:
-        data_to_save = {"currency": currency or "USD", "budgets": budgets}
+    data_to_save = {"currency": currency or "USD", "budgets": budgets}
 
-        with open("budgets.json", "w") as file:
-            json.dump(data_to_save, file, indent=4)
-        print("Budgets saved successfully.")
-    except IOError as e:
-        print(f"Error saving budgets: {e}")
+    with open("budgets.json", "w") as file:
+        json.dump(data_to_save, file, indent=4)
+    print("Budgets saved successfully.")
 
 
 def load_budgets():
