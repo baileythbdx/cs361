@@ -33,9 +33,8 @@ def convert():
 
                 converted_expenses = []
                 for expense in expenses:
-                    if "name" in expense and "amount" in expense and isinstance(expense["amount"], (int, float)):
-                        converted_amount = round(expense["amount"] * conversion_rate, 2)
-                        converted_expenses.append({"name": expense["name"], "amount": converted_amount})
+                    converted_amount = round(expense["amount"] * conversion_rate, 2)
+                    converted_expenses.append({"name": expense["name"], "amount": converted_amount})
 
                 converted_budget[income_key] = converted_income
                 converted_budget[expenses_key] = converted_expenses
