@@ -508,12 +508,33 @@ def compare_range():
 
         if response.status_code == 200:
             comparison = response.json()
+
+            # Print overall income difference
+            income_diff = comparison["income_difference"]
+            income_message = comparison.get("income_message", "")
             print(f"\nComparison for {start_date} to {end_date}:")
-            print(f"Total Income Difference: {comparison['income_difference']}")
+            print(f"Total Income Difference: {income_diff:.2f}")
+            print(f"  {income_message}")
+
+            # Print category trends
             print("\nCategory Trends:")
-            for category, trends in comparison["category_trends"].items():
-                print(f"  {category}: Overspent {trends['total_overspend']}, "
-                      f"Underspent {trends['total_underspend']}")
+            category_messages = comparison.get("category_messages", [])
+            for message in category_messages:
+                print(f"  {message}")
+
+            # Optional: Print detailed breakdown by month
+            monthly_details = comparison.get("monthly_details", {})
+            if monthly_details:
+                print("\nMonthly Details:")
+                for month, details in monthly_details.items():
+                    print(f"  {month}:")
+                    print(f"    Income Difference: {details['income_difference']:.2f}")
+                    for category, category_details in details["category_details"].items():
+                        print(f"    {category}:")
+                        print(f"      Expected: {category_details['expected']:.2f}")
+                        print(f"      Actual: {category_details['actual']:.2f}")
+                        print(f"      Difference: {category_details['difference']:.2f} ({category_details['status']})")
+
         else:
             print(f"Error: {response.json().get('error', 'Unknown error')}")
 
