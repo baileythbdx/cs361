@@ -69,7 +69,8 @@ def main_menu():
         print("4. View Budgets by Date Range")
         print("5. Convert Budgets to Another Currency")
         print("6. View Monthly Summary")
-        print("7. Exit")
+        print("7. Compare Actual and Expected Budgets for a Date Range")
+        print("8. Exit")
 
         choice = input("Choose an option: ")
         if choice == "1":
@@ -85,6 +86,8 @@ def main_menu():
         elif choice == "6":
             view_monthly_summary()
         elif choice == "7":
+            compare_range()
+        elif choice == "8":
             break
         else:
             print("Invalid choice. Try again.")
@@ -493,5 +496,28 @@ def view_monthly_summary():
     except requests.exceptions.RequestException as e:
         print(f"Error connecting to the microservice: {e}")
 
+
+def compare_range():
+    start_date = input("\nEnter the start date (YYYY-MM): ")
+    end_date = input("Enter the end date (YYYY-MM): ")
+
+    data = {"start_date": start_date, "end_date": end_date, "budgets": budgets}
+
+    try:
+        response = requests.post("http://127.0.0.1:5002/compare/range", json=data)
+
+        if response.status_code == 200:
+            comparison = response.json()
+            print(f"\nComparison for {start_date} to {end_date}:")
+            print(f"Total Income Difference: {comparison['income_difference']}")
+            print("\nCategory Trends:")
+            for category, trends in comparison["category_trends"].items():
+                print(f"  {category}: Overspent {trends['total_overspend']}, "
+                      f"Underspent {trends['total_underspend']}")
+        else:
+            print(f"Error: {response.json().get('error', 'Unknown error')}")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error connecting to the microservice: {e}")
 
 main_menu()
