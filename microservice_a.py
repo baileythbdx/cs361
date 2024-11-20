@@ -14,30 +14,29 @@ conversion_rates = {
 def convert():
     try:
         data = request.json
-        budgets = data.get("budgets")
+        budgets = data.get("budgets", {})
         target_currency = data.get("currency")
         source_currency = data.get("source_currency", "USD")
+
         conversion_rate = conversion_rates[source_currency][target_currency]
         converted_budgets = {}
 
         for date, budget in budgets.items():
             converted_budget = {}
-            for budget_type in ['actual', 'expected']:
-                income_key = f"{budget_type}_income"
-                expenses_key = f"{budget_type}_expenses"
 
-                income = budget.get(income_key, 0)
-                expenses = budget.get(expenses_key, [])
+            for budget_type in ["actual", "expected"]:
+                income = budget.get(f"{budget_type}_income", 0)
+                expenses = budget.get(f"{budget_type}_expenses", [])
 
                 converted_income = round(income * conversion_rate, 2)
 
-                converted_expenses = []
-                for expense in expenses:
-                    converted_amount = round(expense["amount"] * conversion_rate, 2)
-                    converted_expenses.append({"name": expense["name"], "amount": converted_amount})
+                converted_expenses = [
+                    {"name": expense["name"], "amount": round(expense["amount"] * conversion_rate, 2)}
+                    for expense in expenses
+                ]
 
-                converted_budget[income_key] = converted_income
-                converted_budget[expenses_key] = converted_expenses
+                converted_budget[f"{budget_type}_income"] = converted_income
+                converted_budget[f"{budget_type}_expenses"] = converted_expenses
 
             converted_budgets[date] = converted_budget
 
