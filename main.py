@@ -91,7 +91,7 @@ def main_menu():
 
 
 def add_actual_budget():
-    """Adds or updates an actual budget for a specific year and month."""
+
     print("\nPlease note that if you are adding information for a budget that already exists, information will be "
           "overwritten.")
 
