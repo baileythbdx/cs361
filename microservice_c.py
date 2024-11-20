@@ -47,7 +47,6 @@ def compare_range():
                 actual_amount = actual_item["amount"] if actual_item else 0
                 difference = actual_amount - expected_item["amount"]
 
-                # Track trends for the category
                 if category not in category_trends:
                     category_trends[category] = {"total_overspend": 0, "total_underspend": 0, "overspend_months": 0,
                                                  "underspend_months": 0}
