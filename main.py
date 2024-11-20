@@ -1,5 +1,7 @@
 from datetime import datetime
 import json
+import requests
+
 
 budgets = {}
 supported_currencies = ["USD", "EUR", "AUD", "CAD"]
@@ -7,10 +9,14 @@ currency = ""
 
 
 def save_budgets():
-    data_to_save = {"currency": currency, "budgets": budgets}
-    with open("budgets.json", "w") as file:
-        json.dump(data_to_save, file, indent=4)
-    print("Budgets saved successfully.")
+    try:
+        data_to_save = {"currency": currency or "USD", "budgets": budgets}
+
+        with open("budgets.json", "w") as file:
+            json.dump(data_to_save, file, indent=4)
+        print("Budgets saved successfully.")
+    except IOError as e:
+        print(f"Error saving budgets: {e}")
 
 
 def load_budgets():
@@ -23,14 +29,18 @@ def load_budgets():
             print(f"\nBudgets loaded successfully. Current currency: {currency}")
     except FileNotFoundError:
         print("\nNo saved budgets found. Starting with an empty budget.")
+        budgets = {}
+        currency = ""
     except json.JSONDecodeError:
         print("Error decoding the saved budget file. Starting with an empty budget.")
+        budgets = {}
+        currency = ""
 
 
 def select_currency():
     global currency
-    if currency:  # If currency is already set, skip selection
-        print(f"\nCurrency already set to {currency}")
+    if currency:
+        print(f"\nCurrency already set to {currency}.")
         return
 
     print("\nEnter the currency for your budget (USD, EUR, AUD, CAD).")
@@ -45,13 +55,12 @@ def select_currency():
             print("Unsupported currency. Please choose from: USD, EUR, AUD, CAD.")
 
 
-print("\nHi! Welcome to the budget app. Please use the options below to add an expected budget for a specific month and "
-      "\nyear, add an actual budget for a month and year, or edit/delete any of your previously saved budgets. We hope "
-      "\nyou will come back monthly (or more often!) to update your budgets to help manage your spending.")
+print("\nHi! Welcome to the budget app. Please use the options below to add an expected budget for a specific month "
+      "\nand year, add an actual budget for a month and year, or edit/delete any of your previously saved budgets. We "
+      "\nhope you will come back monthly (or more often!) to update your budgets to help manage your spending.")
 
 
 def main_menu():
-
     load_budgets()
     select_currency()
 
@@ -61,7 +70,8 @@ def main_menu():
         print("2. Add Expected Budget")
         print("3. Edit/Delete Budget")
         print("4. View Budgets by Date Range")
-        print("5. Exit")
+        print("5. Convert Budgets to Another Currency")
+        print("6. Exit")
 
         choice = input("Choose an option: ")
         if choice == "1":
@@ -73,22 +83,22 @@ def main_menu():
         elif choice == "4":
             view_budgets_by_date_range()
         elif choice == "5":
+            convert_currency()
+        elif choice == "6":
             break
         else:
             print("Invalid choice. Try again.")
 
 
 def add_actual_budget():
-
+    """Adds or updates an actual budget for a specific year and month."""
     print("\nPlease note that if you are adding information for a budget that already exists, information will be "
           "overwritten.")
 
-    # Prompt user for year and month
     try:
-        # Prompt user for a valid year
         while True:
             try:
-                year = int(input("\nEnter the year of the budget to edit/delete (e.g., 2024): "))
+                year = int(input("\nEnter the year of the budget to add/edit (e.g., 2024): "))
                 if year < 1900 or year > 2100:
                     print("Please enter a realistic year (e.g., between 1900 and 2100).")
                     continue
@@ -96,10 +106,9 @@ def add_actual_budget():
             except ValueError:
                 print("Invalid input. Please enter a numeric value for the year.")
 
-        # Prompt user for a valid month
         while True:
             try:
-                month = int(input("Enter the month of the budget to edit/delete (1-12): "))
+                month = int(input("Enter the month of the budget to add/edit (1-12): "))
                 if 1 <= month <= 12:
                     break
                 else:
@@ -107,20 +116,22 @@ def add_actual_budget():
             except ValueError:
                 print("Invalid input. Please enter a numeric value for the month.")
 
-        # Create a key in the format 'year-month'
         date_key = f"{year}-{month:02d}"
 
-        # If this month/year entry doesn't exist, create it
-        if date_key not in budgets:
-            budgets[date_key] = {'actual_income': 0, 'expected_income': 0, 'actual_expenses': [],
-                                 'expected_expenses': []}
+        budgets.setdefault(date_key, {
+            'actual_income': 0,
+            'expected_income': 0,
+            'actual_expenses': [],
+            'expected_expenses': []
+        })
 
-        # Enter actual income for the month
+        if 'actual_expenses' not in budgets[date_key]:
+            budgets[date_key]['actual_expenses'] = []
+
         income = float(input("Enter the actual income for this month: "))
         budgets[date_key]['actual_income'] = income
         print(f"Income for {date_key} set to {income}.")
 
-        # Adding line items for expenses
         while True:
             print("\nAdd an expense line item or type 'done' to finish.")
             expense_name = input("Enter expense name: ")
@@ -134,10 +145,10 @@ def add_actual_budget():
             except ValueError:
                 print("Invalid amount. Please enter a number.")
 
-    except ValueError:
-        print("Invalid input. Please enter numeric values for year, month, income, and expense amounts.")
+        save_budgets()
 
-    save_budgets()
+    except ValueError as e:
+        print(f"Invalid input: {e}")
 
 
 def add_expected_budget():
@@ -145,9 +156,7 @@ def add_expected_budget():
     print("\nPlease note that if you are adding information for a budget that already exists, information will be "
           "overwritten.")
 
-    # Prompt user for year and month
     try:
-        # Prompt user for a valid year
         while True:
             try:
                 year = int(input("\nEnter the year of the budget to edit/delete (e.g., 2024): "))
@@ -158,7 +167,6 @@ def add_expected_budget():
             except ValueError:
                 print("Invalid input. Please enter a numeric value for the year.")
 
-        # Prompt user for a valid month
         while True:
             try:
                 month = int(input("Enter the month of the budget to edit/delete (1-12): "))
@@ -169,20 +177,16 @@ def add_expected_budget():
             except ValueError:
                 print("Invalid input. Please enter a numeric value for the month.")
 
-        # Create a key in the format 'year-month'
         date_key = f"{year}-{month:02d}"
 
-        # If this month/year entry doesn't exist, create it
         if date_key not in budgets:
             budgets[date_key] = {'actual_income': 0, 'expected_income': 0, 'actual_expenses': [],
                                  'expected_expenses': []}
 
-        # Enter expected income for the month
         income = float(input("Enter the expected income for this month: "))
         budgets[date_key]['expected_income'] = income
         print(f"Expected income for {date_key} set to {income}.")
 
-        # Adding line items for expenses
         while True:
             print("\nAdd an expected expense line item or type 'done' to finish.")
             expense_name = input("Enter expense name: ")
@@ -206,7 +210,6 @@ def edit_delete_budget():
 
     print("\nWarning: Editing a budget modifies the stored data. Deleting a budget is permanent and cannot be undone.")
 
-    # Prompt user for a valid year
     while True:
         try:
             year = int(input("\nEnter the year of the budget to edit/delete (e.g., 2024): "))
@@ -217,7 +220,6 @@ def edit_delete_budget():
         except ValueError:
             print("Invalid input. Please enter a numeric value for the year.")
 
-    # Prompt user for a valid month
     while True:
         try:
             month = int(input("Enter the month of the budget to edit/delete (1-12): "))
@@ -228,15 +230,12 @@ def edit_delete_budget():
         except ValueError:
             print("Invalid input. Please enter a numeric value for the month.")
 
-    # Create date_key
     date_key = f"{year}-{month:02d}"
 
-    # Check if budget exists for this month/year
     if date_key not in budgets:
         print(f"\nNo budget found for {date_key}.")
         return
 
-    # Prompt user to select actual or expected budget
     while True:
         print("\nChoose which budget to edit:")
         print("1. Actual Budget")
@@ -252,11 +251,9 @@ def edit_delete_budget():
         else:
             print("Invalid choice. Please enter 1 or 2.")
 
-    # Initialize budget entries if they do not exist
     budgets[date_key].setdefault(f'{budget_type}_income', 0)
     budgets[date_key].setdefault(f'{budget_type}_expenses', [])
 
-    # Display budget details and options
     print(f"\n{budget_type.capitalize()} Budget for {date_key}:")
     print(f"Income: {budgets[date_key][f'{budget_type}_income']}")
     if budgets[date_key][f'{budget_type}_expenses']:
@@ -266,20 +263,17 @@ def edit_delete_budget():
     else:
         print("No expenses recorded.")
 
-    # Provide options to edit, delete line items, or delete entire budget
     while True:
         print("\nOptions:")
         print("1. Edit income")
         print("2. Edit an expense line item")
         print("3. Delete an expense line item")
         print("4. Delete the entire budget for this month")
-        print("5. Edit currency selection")
-        print("6. Exit to Main Menu")
+        print("5. Exit to Main Menu")
 
         choice = input("Choose an option: ")
 
         if choice == "1":
-            # Edit income
             try:
                 new_income = float(input("Enter the new income amount: "))
                 budgets[date_key][f'{budget_type}_income'] = new_income
@@ -288,7 +282,6 @@ def edit_delete_budget():
                 print("Invalid input. Please enter a numeric value for income.")
 
         elif choice == "2":
-            # Edit an expense line item
             if budgets[date_key][f'{budget_type}_expenses']:
                 try:
                     item_index = int(input("Enter the number of the expense to edit: ")) - 1
@@ -305,7 +298,6 @@ def edit_delete_budget():
                 print("No expenses to edit.")
 
         elif choice == "3":
-            # Delete an expense line item
             if budgets[date_key][f'{budget_type}_expenses']:
                 try:
                     item_index = int(input("Enter the number of the expense to delete: ")) - 1
@@ -320,7 +312,6 @@ def edit_delete_budget():
                 print("No expenses to delete.")
 
         elif choice == "4":
-            # Delete the entire budget with confirmation
             confirm = input(f"Are you sure you want to delete the entire {budget_type} budget for {date_key}? (yes/no): ")
             if confirm.lower() == 'yes':
                 del budgets[date_key][f'{budget_type}_income']
@@ -331,24 +322,6 @@ def edit_delete_budget():
                 print("Budget deletion canceled.")
 
         elif choice == "5":
-            global currency
-            print("\nCurrent currency:", currency)
-            print("Supported currencies:", ", ".join(supported_currencies))
-            while True:
-                new_currency = input("Enter the new currency (USD, EUR, AUD, CAD): ").upper()
-                if new_currency in supported_currencies:
-                    if new_currency == currency:
-                        print("Currency is already set to the selected value.")
-                    else:
-                        currency = new_currency
-                        save_budgets()  # Save the updated currency
-                        print(f"Currency preference has been updated to {currency}.")
-                    break
-                else:
-                    print("Unsupported currency. Please choose from the following:", ", ".join(supported_currencies))
-                    print("Try again.")
-
-        elif choice == "6":
             print("Action canceled.")
             break
 
@@ -359,7 +332,6 @@ def edit_delete_budget():
 
 
 def view_budgets_by_date_range():
-    # Prompt user to select actual or expected budget to view
 
     print("\nView Budgets by Date Range")
     print("Note: Only budgets within the specified range will be displayed.")
@@ -380,7 +352,6 @@ def view_budgets_by_date_range():
         else:
             print("Invalid choice. Please enter 1 or 2.")
 
-    # Prompt for start date
     while True:
         start_date_str = input("Enter the start date (YYYY-MM): ")
         try:
@@ -389,7 +360,6 @@ def view_budgets_by_date_range():
         except ValueError:
             print("Invalid date format. Please enter in YYYY-MM format.")
 
-    # Prompt for end date
     while True:
         end_date_str = input("Enter the end date (YYYY-MM): ")
         try:
@@ -401,7 +371,6 @@ def view_budgets_by_date_range():
         except ValueError:
             print("Invalid date format. Please enter in YYYY-MM format.")
 
-    # Filter and display budgets within the date range
     print(f"\n{budget_type.capitalize()} Budgets from {start_date_str} to {end_date_str}:")
     for date_key, budget in budgets.items():
         date_obj = datetime.strptime(date_key, "%Y-%m")
@@ -434,5 +403,46 @@ def view_budgets():
                 print("No expenses recorded.")
 
 
-# Start the application
+def convert_currency():
+    global budgets, currency
+
+    if not budgets:
+        print("\nNo budgets available for conversion.")
+        return
+
+    print("\nConvert Budgets to Another Currency")
+    print("Supported currencies:", ", ".join(supported_currencies))
+    while True:
+        target_currency = input("Enter the target currency (e.g., USD, EUR, AUD, CAD): ").upper()
+        if target_currency in supported_currencies:
+            break
+        else:
+            print("Invalid currency. Please enter a supported currency.")
+
+    data = {
+        "budgets": budgets,
+        "currency": target_currency
+    }
+
+    try:
+        response = requests.post("http://127.0.0.1:5000/convert", json=data)
+        if response.status_code == 200:
+            converted_budgets = response.json()
+
+            for date_key, converted_budget in converted_budgets.items():
+                if date_key in budgets:
+                    budgets[date_key].update(converted_budget)
+
+            currency = target_currency
+
+            save_budgets()
+
+            print("\nBudgets successfully converted and saved.")
+            print(f"Current currency is now {currency}.")
+        else:
+            print(f"Error: Microservice returned status code {response.status_code} with message: {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error connecting to the microservice: {e}")
+
+
 main_menu()
