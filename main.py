@@ -7,6 +7,8 @@ budgets = {}
 supported_currencies = ["USD", "EUR", "AUD", "CAD"]
 currency = ""
 
+SAVINGS_GOALS_URL = "http://127.0.0.1:5004"
+
 
 def save_budgets():
     data_to_save = {"currency": currency or "USD", "budgets": budgets}
@@ -70,7 +72,8 @@ def main_menu():
         print("5. Convert Budgets to Another Currency")
         print("6. View Monthly Summary")
         print("7. Compare Actual and Expected Budgets for a Date Range")
-        print("8. Exit")
+        print("8. Manage Savings Goals")
+        print("9. Exit")
 
         choice = input("Choose an option: ")
         if choice == "1":
@@ -88,6 +91,8 @@ def main_menu():
         elif choice == "7":
             compare_range()
         elif choice == "8":
+            savings_goal_menu()
+        elif choice == "9":
             break
         else:
             print("Invalid choice. Try again.")
@@ -537,6 +542,105 @@ def compare_range():
 
     except requests.exceptions.RequestException as e:
         print(f"Error connecting to the microservice: {e}")
+
+
+def savings_goal_menu():
+    while True:
+        print("\nSavings Goals Menu:")
+        print("1. Create Savings Goal")
+        print("2. View Progress on Savings Goal")
+        print("3. Update Saved Amount for Savings Goal")
+        print("4. List All Savings Goals")
+        print("5. Return to Main Menu")
+
+        choice = input("Choose an option: ")
+        if choice == "1":
+            create_savings_goal()
+        elif choice == "2":
+            view_savings_goal_progress()
+        elif choice == "3":
+            update_savings_goal()
+        elif choice == "4":
+            list_savings_goals()
+        elif choice == "5":
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+
+def create_savings_goal():
+    goal_name = input("Enter the goal name: ")
+    target_amount = input("Enter the target amount: ")
+    deadline = input("Enter the deadline (YYYY-MM-DD): ")
+
+    try:
+        response = requests.post(
+            f"{SAVINGS_GOALS_URL}/goal/create",
+            json={"goal_name": goal_name, "target_amount": target_amount, "deadline": deadline},
+        )
+        if response.status_code == 201:
+            print(response.json()["message"])
+        else:
+            print(f"Error: {response.json().get('error', 'Unknown error')}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error connecting to the savings goal service: {e}")
+
+
+def view_savings_goal_progress():
+    goal_name = input("Enter the name of the savings goal: ")
+
+    try:
+        response = requests.get(f"{SAVINGS_GOALS_URL}/goal/progress", params={"goal_name": goal_name})
+        if response.status_code == 200:
+            progress = response.json()
+            print(f"\nSavings Goal: {progress['goal_name']}")
+            print(f"Target Amount: {progress['target_amount']}")
+            print(f"Saved Amount: {progress['saved_amount']}")
+            print(f"Remaining Amount: {progress['remaining_amount']}")
+            print(f"Progress Percentage: {progress['progress_percentage']}%")
+            print(f"Required Monthly Savings: {progress['required_monthly_savings']}")
+            print(f"Deadline: {progress['deadline']}")
+        else:
+            print(f"Error: {response.json().get('error', 'Unknown error')}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error connecting to the savings goal service: {e}")
+
+
+def update_savings_goal():
+    goal_name = input("Enter the name of the savings goal: ")
+    saved_amount = input("Enter the amount to add to saved amount: ")
+
+    try:
+        response = requests.post(
+            f"{SAVINGS_GOALS_URL}/goal/update",
+            json={"goal_name": goal_name, "saved_amount": saved_amount},
+        )
+        if response.status_code == 200:
+            print(response.json()["message"])
+        else:
+            print(f"Error: {response.json().get('error', 'Unknown error')}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error connecting to the savings goal service: {e}")
+
+
+def list_savings_goals():
+    try:
+        response = requests.get(f"{SAVINGS_GOALS_URL}/goal/list")
+        if response.status_code == 200:
+            goals = response.json()
+            if goals:
+                print("\nSavings Goals:")
+                for goal_name, goal_data in goals.items():
+                    print(f"\nGoal: {goal_name}")
+                    print(f"  Target Amount: {goal_data['target_amount']}")
+                    print(f"  Saved Amount: {goal_data['saved_amount']}")
+                    print(f"  Deadline: {goal_data['deadline']}")
+            else:
+                print("No savings goals found.")
+        else:
+            print(f"Error: {response.json().get('error', 'Unknown error')}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error connecting to the savings goal service: {e}")
 
 
 main_menu()

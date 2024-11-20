@@ -1,51 +1,51 @@
 {
-    "currency": "EUR",
+    "currency": "CAD",
     "budgets": {
         "2024-01": {
-            "actual_income": 6640.62,
-            "expected_income": 9960.94,
+            "actual_income": 7055.66,
+            "expected_income": 10583.5,
             "actual_expenses": [
                 {
-                    "amount": 1195.31,
+                    "amount": 1270.01,
                     "name": "Rent"
                 }
             ],
             "expected_expenses": [
                 {
-                    "amount": 730.47,
+                    "amount": 776.12,
                     "name": "Rent"
                 }
             ]
         },
         "2024-02": {
-            "actual_income": 6375.0,
-            "expected_income": 6800.0,
+            "actual_income": 6773.44,
+            "expected_income": 7225.0,
             "actual_expenses": [
                 {
-                    "amount": 637.5,
+                    "amount": 677.35,
                     "name": "Rent"
                 }
             ],
             "expected_expenses": [
                 {
-                    "amount": 722.5,
+                    "amount": 767.65,
                     "name": "Rent"
                 }
             ]
         },
         "2024-03": {
-            "actual_income": 7000.0,
-            "expected_income": 5000.0,
+            "actual_income": 7437.5,
+            "expected_income": 5312.5,
             "actual_expenses": [
                 {
-                    "name": "Rent",
-                    "amount": 1000.0
+                    "amount": 1062.5,
+                    "name": "Rent"
                 }
             ],
             "expected_expenses": [
                 {
-                    "name": "Rent",
-                    "amount": 650.0
+                    "amount": 690.62,
+                    "name": "Rent"
                 }
             ]
         }

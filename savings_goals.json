@@ -1,0 +1,12 @@
+{
+    "Vacation": {
+        "target_amount": 10000.0,
+        "deadline": "2025-01-01",
+        "saved_amount": 250.0
+    },
+    "New House": {
+        "target_amount": 50000.0,
+        "deadline": "2030-01-01",
+        "saved_amount": 7500.0
+    }
+}

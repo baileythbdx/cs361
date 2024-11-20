@@ -40,7 +40,7 @@ def monthly_summary():
         "overspending_categories": overspending_categories,
     }
 
-    return jsonify(summary), 200
+    return jsonify(summary)
 
 
 if __name__ == "__main__":
