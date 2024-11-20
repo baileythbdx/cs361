@@ -1,16 +1,21 @@
 {
-    "currency": "USD",
+    "currency": "CAD",
     "budgets": {
         "2024-01": {
-            "actual_income": 4500.0,
-            "expected_income": 0,
+            "actual_income": 5625.0,
+            "expected_income": 5937.5,
             "actual_expenses": [
                 {
-                    "name": "Rent",
-                    "amount": 500.0
+                    "amount": 937.5,
+                    "name": "Rent"
                 }
             ],
-            "expected_expenses": []
+            "expected_expenses": [
+                {
+                    "amount": 937.5,
+                    "name": "Rent"
+                }
+            ]
         }
     }
 }
