@@ -68,7 +68,8 @@ def main_menu():
         print("3. Edit/Delete Budget")
         print("4. View Budgets by Date Range")
         print("5. Convert Budgets to Another Currency")
-        print("6. Exit")
+        print("6. View Monthly Summary")
+        print("7. Exit")
 
         choice = input("Choose an option: ")
         if choice == "1":
@@ -82,6 +83,8 @@ def main_menu():
         elif choice == "5":
             convert_currency()
         elif choice == "6":
+            view_monthly_summary()
+        elif choice == "7":
             break
         else:
             print("Invalid choice. Try again.")
@@ -438,6 +441,46 @@ def convert_currency():
             print(f"Current currency is now {currency}.")
         else:
             print(f"Error: Microservice returned status code {response.status_code} with message: {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error connecting to the microservice: {e}")
+
+
+def view_monthly_summary():
+    if not budgets:
+        print("\nNo budgets recorded. Add a budget first.")
+        return
+
+    while True:
+        month = input("\nEnter the month (YYYY-MM) for the summary: ")
+        if month in budgets:
+            break
+        else:
+            print("Invalid month or no data available for the entered month. Try again.")
+
+    data = {
+        "month": month,
+        "budgets": budgets
+    }
+
+    try:
+        response = requests.post("http://127.0.0.1:5000/monthly_summary", json=data)
+
+        if response.status_code == 200:
+            summary = response.json()
+            print(f"\nMonthly Summary for {summary['month']}:")
+            print(f"Total Income: {summary['total_income']}")
+            print(f"Total Expenses: {summary['total_expenses']}")
+            print(f"Remaining Balance: {summary['remaining_balance']}")
+            if summary["overspending_categories"]:
+                print("\nOverspending Categories:")
+                for category in summary["overspending_categories"]:
+                    print(f"  {category['category']}: Spent {category['actual_spent']} "
+                          f"(Expected: {category['expected_budget']}, Overspent: {category['overspend']})")
+            else:
+                print("No overspending categories found.")
+        else:
+            print(f"Error: {response.json().get('error', 'Unknown error')}")
+
     except requests.exceptions.RequestException as e:
         print(f"Error connecting to the microservice: {e}")
 
