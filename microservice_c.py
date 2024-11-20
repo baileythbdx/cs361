@@ -4,41 +4,6 @@ from datetime import datetime
 app = Flask(__name__)
 
 
-@app.route("/compare/month", methods=["POST"])
-def compare_month():
-    data = request.get_json()
-    month = data.get("month")
-    budgets = data.get("budgets")
-
-    budget = budgets.get(month)
-
-    actual_income = budget.get("actual_income", 0)
-    expected_income = budget.get("expected_income", 0)
-    actual_expenses = budget.get("actual_expenses", [])
-    expected_expenses = budget.get("expected_expenses", [])
-
-    income_difference = actual_income - expected_income
-
-    expense_comparison = []
-    for expected_item in expected_expenses:
-        actual_item = next((e for e in actual_expenses if e["name"] == expected_item["name"]), None)
-        actual_amount = actual_item["amount"] if actual_item else 0
-        difference = actual_amount - expected_item["amount"]
-        expense_comparison.append({
-            "category": expected_item["name"],
-            "expected": expected_item["amount"],
-            "actual": actual_amount,
-            "difference": difference,
-            "status": "overspending" if difference > 0 else "underspending" if difference < 0 else "on-budget"
-        })
-
-    return jsonify({
-        "month": month,
-        "income_difference": income_difference,
-        "expense_comparison": expense_comparison
-    })
-
-
 @app.route("/compare/range", methods=["POST"])
 def compare_range():
     data = request.get_json()
@@ -63,7 +28,7 @@ def compare_range():
         try:
             month_date = datetime.strptime(month, "%Y-%m")
         except ValueError:
-            continue  # Skip invalid dates
+            continue
 
         if start_date_obj <= month_date <= end_date_obj:
             actual_income = budget.get("actual_income", 0)
@@ -106,7 +71,6 @@ def compare_range():
                 "category_details": monthly_category_diff
             }
 
-    # Create contextual messages
     if aggregated_income_diff > 0:
         income_message = f"(You earned ${aggregated_income_diff:.2f} more than expected in total.)"
     elif aggregated_income_diff < 0:

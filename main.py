@@ -509,20 +509,17 @@ def compare_range():
         if response.status_code == 200:
             comparison = response.json()
 
-            # Print overall income difference
             income_diff = comparison["income_difference"]
             income_message = comparison.get("income_message", "")
             print(f"\nComparison for {start_date} to {end_date}:")
             print(f"Total Income Difference: {income_diff:.2f}")
             print(f"  {income_message}")
 
-            # Print category trends
             print("\nCategory Trends:")
             category_messages = comparison.get("category_messages", [])
             for message in category_messages:
                 print(f"  {message}")
 
-            # Optional: Print detailed breakdown by month
             monthly_details = comparison.get("monthly_details", {})
             if monthly_details:
                 print("\nMonthly Details:")
@@ -540,5 +537,6 @@ def compare_range():
 
     except requests.exceptions.RequestException as e:
         print(f"Error connecting to the microservice: {e}")
+
 
 main_menu()
