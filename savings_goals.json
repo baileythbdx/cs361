@@ -8,5 +8,10 @@
         "target_amount": 50000.0,
         "deadline": "2030-01-01",
         "saved_amount": 7500.0
+    },
+    "Horse": {
+        "target_amount": 45000.0,
+        "deadline": "2028-12-15",
+        "saved_amount": 0.0
     }
 }

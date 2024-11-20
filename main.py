@@ -7,7 +7,7 @@ budgets = {}
 supported_currencies = ["USD", "EUR", "AUD", "CAD"]
 currency = ""
 
-SAVINGS_GOALS_URL = "http://127.0.0.1:5004"
+SAVINGS_GOALS_URL = "http://127.0.0.1:5003"
 
 
 def save_budgets():
