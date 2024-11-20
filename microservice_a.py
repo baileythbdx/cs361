@@ -12,39 +12,34 @@ conversion_rates = {
 
 @app.route("/convert", methods=["POST"])
 def convert():
-    try:
-        data = request.json
-        budgets = data.get("budgets", {})
-        target_currency = data.get("currency")
-        source_currency = data.get("source_currency", "USD")
+    data = request.json
+    budgets = data.get("budgets", {})
+    target_currency = data.get("currency")
+    source_currency = data.get("source_currency", "USD")
 
-        conversion_rate = conversion_rates[source_currency][target_currency]
-        converted_budgets = {}
+    conversion_rate = conversion_rates[source_currency][target_currency]
+    converted_budgets = {}
 
-        for date, budget in budgets.items():
-            converted_budget = {}
+    for date, budget in budgets.items():
+        converted_budget = {}
 
-            for budget_type in ["actual", "expected"]:
-                income = budget.get(f"{budget_type}_income", 0)
-                expenses = budget.get(f"{budget_type}_expenses", [])
+        for budget_type in ["actual", "expected"]:
+            income = budget.get(f"{budget_type}_income", 0)
+            expenses = budget.get(f"{budget_type}_expenses", [])
 
-                converted_income = round(income * conversion_rate, 2)
+            converted_income = round(income * conversion_rate, 2)
 
-                converted_expenses = [
-                    {"name": expense["name"], "amount": round(expense["amount"] * conversion_rate, 2)}
-                    for expense in expenses
-                ]
+            converted_expenses = [
+                {"name": expense["name"], "amount": round(expense["amount"] * conversion_rate, 2)}
+                for expense in expenses
+            ]
 
-                converted_budget[f"{budget_type}_income"] = converted_income
-                converted_budget[f"{budget_type}_expenses"] = converted_expenses
+            converted_budget[f"{budget_type}_income"] = converted_income
+            converted_budget[f"{budget_type}_expenses"] = converted_expenses
 
-            converted_budgets[date] = converted_budget
+        converted_budgets[date] = converted_budget
 
-        return jsonify(converted_budgets)
-
-    except Exception as e:
-        print("Error:", str(e))
-        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+    return jsonify(converted_budgets)
 
 
 if __name__ == "__main__":
