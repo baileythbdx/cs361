@@ -410,7 +410,7 @@ def convert_currency():
     print("\nConvert Budgets to Another Currency")
     print("Supported currencies:", ", ".join(supported_currencies))
     while True:
-        target_currency = input("Enter the target currency (e.g., USD, EUR, AUD, CAD): ").upper()
+        target_currency = input("Enter the target currency (USD, EUR, AUD, CAD): ").upper()
         if target_currency in supported_currencies:
             break
         else:
